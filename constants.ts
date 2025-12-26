@@ -1,8 +1,8 @@
 
 import { AddonSettings, Product, Role, User, VerificationStatus } from './types';
 
-const IS_LOCALHOST = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-export const API_BASE_URL = IS_LOCALHOST ? 'https://katydid-fresh-verbally.ngrok-free.app' : '';
+// Always use ngrok directly - Vercel proxy has issues with external URLs
+export const API_BASE_URL = 'https://katydid-fresh-verbally.ngrok-free.app';
 
 export const MOCK_PRODUCTS: Product[] = [
   {
