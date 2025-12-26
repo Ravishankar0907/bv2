@@ -86,6 +86,7 @@ const Users: React.FC = () => {
               <tr>
                 <th className="p-4">Name</th>
                 <th className="p-4">Email</th>
+                <th className="p-4">Phone</th>
                 <th className="p-4">Role</th>
                 <th className="p-4">ID Status</th>
                 <th className="p-4 text-right">Actions</th>
@@ -104,6 +105,7 @@ const Users: React.FC = () => {
                     </div>
                   </td>
                   <td className="p-4 text-slate-400">{user.email}</td>
+                  <td className="p-4 text-slate-400">{user.phone || '-'}</td>
                   <td className="p-4">
                     <Badge color={user.role === Role.ADMIN ? 'red' : 'blue'}>{user.role}</Badge>
                   </td>
@@ -199,6 +201,9 @@ const Users: React.FC = () => {
               <div>
                 <h3 className="text-xl font-bold">{selectedUser.name}</h3>
                 <p className="text-slate-400 text-sm">{selectedUser.email}</p>
+                {selectedUser.phone && (
+                  <p className="text-slate-400 text-sm">📱 {selectedUser.phone}</p>
+                )}
                 <p className="text-slate-500 text-xs mt-1">ID: {selectedUser.id}</p>
               </div>
             </div>
