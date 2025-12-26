@@ -1,10 +1,11 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useStore } from '../../context/StoreContext';
 import { RentalPeriod, SavedLocation, VerificationStatus, OrderStatus, User } from '../../types';
 import { Button, Badge, Input, FileUpload } from '../../components/UI';
 import { ProductImage } from '../../components/ProductImage';
 import { ArrowLeft, Calendar as CalendarIcon, MapPin, CheckCircle, Plus, Home, Navigation, AlertCircle, Lock, Gamepad2, CreditCard, Phone, Truck, Clock, Target, ExternalLink, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { API_BASE_URL } from '../../constants';
 
 interface ProductDetailProps {
   productId: string;
@@ -83,29 +84,39 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onOrde
     return getDaysInMonth(d);
   }, []);
 
-  // Availability Logic
-  const getBookedCounts = useMemo(() => {
-    const counts = new Map<string, number>();
-    if (!product) return counts;
+  // Week-based Availability from Backend API
+  const [weekAvailability, setWeekAvailability] = useState<Record<string, number>>({});
+  const [availabilityLoading, setAvailabilityLoading] = useState(true);
 
-    orders
-      .filter(o => o.productId === product.id && o.status === OrderStatus.CONFIRMED)
-      .forEach(o => {
-        if (!o.rentalStartDate || !o.rentalEndDate) return;
-        let d = new Date(o.rentalStartDate);
-        const end = new Date(o.rentalEndDate);
-        while (d <= end) {
-          const key = d.toDateString();
-          counts.set(key, (counts.get(key) || 0) + 1);
-          d.setDate(d.getDate() + 1);
+  useEffect(() => {
+    const fetchAvailability = async () => {
+      if (!product) return;
+      setAvailabilityLoading(true);
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/products/${product.id}/availability`, {
+          headers: { 'ngrok-skip-browser-warning': 'true' }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setWeekAvailability(data.availability || {});
         }
-      });
-    return counts;
-  }, [orders, product]);
+      } catch (e) {
+        console.error('Failed to fetch availability', e);
+      } finally {
+        setAvailabilityLoading(false);
+      }
+    };
+    fetchAvailability();
+  }, [product?.id]);
+
+  // Check if a Saturday is fully booked (availability = 0)
+  const getAvailabilityForDate = (date: Date) => {
+    const saturdayKey = date.toISOString().split('T')[0]; // YYYY-MM-DD
+    return weekAvailability[saturdayKey] ?? product?.totalStock ?? 0;
+  };
 
   const isDateFullyBooked = (date: Date) => {
-    if (!product) return false;
-    return (getBookedCounts.get(date.toDateString()) || 0) >= product.totalStock;
+    return getAvailabilityForDate(date) <= 0;
   };
 
   if (!product) return <div>Product not found</div>;
@@ -312,9 +323,10 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onOrde
               const isFullyBooked = isDateFullyBooked(date);
               const isSelected = startDate && date.toDateString() === startDate.toDateString();
               const isDisabled = !isSaturday || isPast || isFullyBooked;
+              const availableCount = isSaturday ? getAvailabilityForDate(date) : 0;
 
               // Green if available Saturday, Red if booked Saturday
-              let className = "aspect-square rounded-lg flex items-center justify-center text-sm transition-all ";
+              let className = "aspect-square rounded-lg flex flex-col items-center justify-center text-sm transition-all ";
 
               if (isSelected) {
                 className += "bg-brand-500 text-white shadow-lg shadow-brand-500/50 font-bold";
@@ -335,8 +347,14 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onOrde
                   onClick={() => !isDisabled && setStartDate(date)}
                   disabled={isDisabled}
                   className={className}
+                  title={isSaturday && !isPast ? `${availableCount} available` : undefined}
                 >
-                  {date.getDate()}
+                  <span>{date.getDate()}</span>
+                  {isSaturday && !isPast && (
+                    <span className={`text-[9px] ${isFullyBooked ? 'text-red-400' : 'text-green-300'}`}>
+                      {availableCount > 0 ? `${availableCount}` : 'Full'}
+                    </span>
+                  )}
                 </button>
               );
             })}
