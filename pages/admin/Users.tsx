@@ -208,13 +208,6 @@ const Users: React.FC = () => {
               <h4 className="font-bold mb-2 flex items-center gap-2">
                 <Shield size={18} className="text-brand-500" /> Identity Proof
               </h4>
-              {/* DEBUG INFO - Remove after fixing */}
-              <div className="bg-red-900/30 p-2 rounded mb-2 text-xs font-mono">
-                <p>DEBUG: hasIdProof = {String(selectedUser.hasIdProof)}</p>
-                <p>DEBUG: idProofUrl exists = {String(!!selectedUser.idProofUrl)}</p>
-                <p>DEBUG: idProofUrl length = {selectedUser.idProofUrl?.length || 0}</p>
-                <p>DEBUG: idVerificationStatus = {selectedUser.idVerificationStatus}</p>
-              </div>
               <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
                 <div className="flex justify-between items-center mb-3">
                   <Badge color={
@@ -225,28 +218,13 @@ const Users: React.FC = () => {
                   </Badge>
                 </div>
                 {(selectedUser.hasIdProof || selectedUser.idProofUrl) ? (
-                  <div>
-                    <p className="text-xs text-green-400 mb-2">✅ hasIdProof={String(selectedUser.hasIdProof)}, attempting to load image...</p>
-                    <img
-                      src={`${API_BASE_URL}/api/users/${selectedUser.id}/proof?ngrok-skip-browser-warning=true`}
-                      alt="ID Proof"
-                      className="w-full h-auto rounded-lg max-h-64 object-contain bg-black"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                        target.insertAdjacentHTML('afterend', `<div class="bg-orange-900/50 p-3 rounded text-xs text-orange-300">❌ Image failed to load from: ${target.src}</div>`);
-                      }}
-                    />
-                  </div>
+                  <img
+                    src={`${API_BASE_URL}/api/users/${selectedUser.id}/proof?ngrok-skip-browser-warning=true`}
+                    alt="ID Proof"
+                    className="w-full h-auto rounded-lg max-h-64 object-contain bg-black"
+                  />
                 ) : (
-                  <div className="bg-red-900/50 p-3 rounded-lg text-xs font-mono text-red-300 space-y-1">
-                    <p className="font-bold text-red-400">❌ No ID proof condition failed:</p>
-                    <p>hasIdProof = {String(selectedUser.hasIdProof)} (type: {typeof selectedUser.hasIdProof})</p>
-                    <p>idProofUrl = {selectedUser.idProofUrl ? `"${selectedUser.idProofUrl.substring(0, 50)}..."` : String(selectedUser.idProofUrl)}</p>
-                    <p>idVerificationStatus = {selectedUser.idVerificationStatus}</p>
-                    <p>User ID = {selectedUser.id}</p>
-                    <p className="pt-2 text-yellow-400">Backend may not be sending hasIdProof:true or idProofUrl is empty in DB</p>
-                  </div>
+                  <p className="text-slate-500 italic text-sm">No ID proof uploaded.</p>
                 )}
               </div>
             </div>
