@@ -125,6 +125,7 @@ const Requests: React.FC = () => {
                           <Badge color={isVerified ? 'green' : 'yellow'}>
                             {isVerified ? 'Verified' : 'Pending Review'}
                           </Badge>
+                          {!user && <span className="text-xs text-red-400">(User not found)</span>}
                         </div>
                         <div className="pt-2">
                           <p className="text-xs text-slate-500 mb-2">ID Proof Document:</p>
@@ -132,14 +133,22 @@ const Requests: React.FC = () => {
                             src={`${API_BASE_URL}/api/users/${order.userId}/proof?ngrok-skip-browser-warning=true`}
                             alt="ID Proof"
                             className="w-full max-w-sm h-auto rounded-lg border border-slate-700 bg-black"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.opacity = '0.3';
+                              target.alt = 'Failed to load';
+                            }}
                           />
                         </div>
                         {!isVerified && (
                           <button
-                            onClick={() => handleVerifyUser(order.userId)}
-                            className="text-xs bg-slate-700 hover:bg-slate-600 text-white px-2 py-1 rounded border border-slate-600 flex items-center gap-1 w-max mt-1"
+                            onClick={() => {
+                              console.log('Verifying user:', order.userId, 'User found:', !!user);
+                              handleVerifyUser(order.userId);
+                            }}
+                            className="text-xs bg-green-600 hover:bg-green-500 text-white px-3 py-2 rounded border border-green-500 flex items-center gap-1 w-max mt-2"
                           >
-                            <ShieldCheck size={10} /> Mark ID as Verified
+                            <ShieldCheck size={12} /> Mark ID as Verified
                           </button>
                         )}
                       </div>
