@@ -122,6 +122,17 @@ const Fulfillment: React.FC = () => {
                                         <div className="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
                                             <p className="text-sm text-white mb-1">{order.deliveryLocation.name}</p>
                                             <p className="text-xs text-slate-400">{order.deliveryLocation.address}</p>
+                                            <p className="text-xs text-slate-500">PIN: {order.deliveryLocation.pincode}</p>
+                                            {order.deliveryLocation.lat && order.deliveryLocation.lng && (
+                                                <a
+                                                    href={`https://maps.google.com/?q=${order.deliveryLocation.lat},${order.deliveryLocation.lng}`}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="text-brand-400 hover:underline flex items-center gap-1 mt-2 text-xs"
+                                                >
+                                                    <MapPin className="w-3 h-3" /> View on Google Maps
+                                                </a>
+                                            )}
                                         </div>
                                     </div>
 
