@@ -225,11 +225,19 @@ const Users: React.FC = () => {
                   </Badge>
                 </div>
                 {(selectedUser.hasIdProof || selectedUser.idProofUrl) ? (
-                  <img
-                    src={`${API_BASE_URL}/api/users/${selectedUser.id}/proof?ngrok-skip-browser-warning=true`}
-                    alt="ID Proof"
-                    className="w-full h-auto rounded-lg max-h-64 object-contain bg-black"
-                  />
+                  <div>
+                    <p className="text-xs text-green-400 mb-2">✅ hasIdProof={String(selectedUser.hasIdProof)}, attempting to load image...</p>
+                    <img
+                      src={`${API_BASE_URL}/api/users/${selectedUser.id}/proof?ngrok-skip-browser-warning=true`}
+                      alt="ID Proof"
+                      className="w-full h-auto rounded-lg max-h-64 object-contain bg-black"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        target.insertAdjacentHTML('afterend', `<div class="bg-orange-900/50 p-3 rounded text-xs text-orange-300">❌ Image failed to load from: ${target.src}</div>`);
+                      }}
+                    />
+                  </div>
                 ) : (
                   <div className="bg-red-900/50 p-3 rounded-lg text-xs font-mono text-red-300 space-y-1">
                     <p className="font-bold text-red-400">❌ No ID proof condition failed:</p>
