@@ -1,0 +1,7 @@
+{
+  "name": "BattleVault",
+  "description": "A high-end product rental platform with seamless user experience, inventory management, and admin approval workflows.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
