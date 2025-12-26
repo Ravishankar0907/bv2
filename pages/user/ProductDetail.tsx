@@ -282,7 +282,8 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onOrde
       rentalStartDate: startDate.toISOString(),
       rentalEndDate: endDate.toISOString(),
       psPlusExtra: includePsPlusExtra,
-      extraController: includeExtraController
+      extraController: includeExtraController,
+      productImageUrl: product.imageUrl
     });
     onOrderSuccess();
   };

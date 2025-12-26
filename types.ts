@@ -85,6 +85,7 @@ export interface Order {
   productId: string;
   productName: string;
   productImage: string;
+  productImageUrl?: string; // Fallback URL (e.g. Unsplash)
   duration: number;
   period: RentalPeriod;
   totalPrice: number;

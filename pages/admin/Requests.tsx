@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useStore } from '../../context/StoreContext';
 import { OrderStatus, VerificationStatus } from '../../types';
 import { Button, Badge, Modal } from '../../components/UI';
+import { ProductImage } from '../../components/ProductImage';
 import { Check, X, MapPin, User, FileText, ExternalLink, ShieldCheck, Calendar, Gamepad2, CreditCard } from 'lucide-react';
 
 import { API_BASE_URL } from '../../constants';
@@ -43,7 +44,7 @@ const Requests: React.FC = () => {
                 {/* Product Info */}
                 <div className="p-6 bg-slate-800/30 min-w-[300px] flex flex-col gap-4">
                   <div className="flex items-center gap-4">
-                    <img src={order.productImage} alt="Product" className="w-16 h-16 rounded-lg object-cover" />
+                    <ProductImage mainSrc={order.productImageUrl} fallbackSrc={order.productImage} alt="Product" className="w-16 h-16 rounded-lg object-cover" />
                     <div>
                       <h4 className="font-bold">{order.productName}</h4>
                       <p className="text-sm text-slate-400">ID: {order.productId}</p>
