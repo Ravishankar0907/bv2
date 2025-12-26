@@ -147,10 +147,11 @@ export const ChatBot: React.FC = () => {
                         ))}
                         {isTyping && (
                             <div className="flex justify-start">
-                                <div className="bg-slate-700 p-3 rounded-2xl rounded-tl-none flex gap-1">
-                                    <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></span>
-                                    <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-100"></span>
-                                    <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-200"></span>
+                                <div className="bg-slate-700 p-3 rounded-2xl rounded-tl-none flex items-center gap-1 text-sm text-slate-300">
+                                    <span>Connecting you to an agent</span>
+                                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></span>
+                                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce delay-100"></span>
+                                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce delay-200"></span>
                                 </div>
                             </div>
                         )}
