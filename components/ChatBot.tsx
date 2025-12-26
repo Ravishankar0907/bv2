@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Minus } from 'lucide-react';
 import { Button } from './UI';
+import { API_BASE_URL } from '../constants';
 
 interface Message {
     id: string;
@@ -14,14 +15,6 @@ const INITIAL_MESSAGE: Message = {
     text: "Hi there! 👋 Welcome to BattleVault. How can I help you with your console rental today?",
     sender: 'bot',
     timestamp: new Date()
-};
-
-const FAQ_RESPONSES: Record<string, string> = {
-    'price': "Our flexible pricing starts from ₹3499/week for PS5 consoles. We also have monthly plans! You can check the catalog for specific rates.",
-    'deposit': "We require a small refundable security deposit which is returned immediately after the rental period ends.",
-    'delivery': "We offer free delivery and pickup within our service areas in Bangalore.",
-    'games': "All our consoles come with PS Plus subscription access, giving you hundreds of games to play instantly!",
-    'verification': "To rent, you'll need to complete a quick ID verification process. It usually takes less than 2 hours."
 };
 
 export const ChatBot: React.FC = () => {
@@ -40,8 +33,8 @@ export const ChatBot: React.FC = () => {
         scrollToBottom();
     }, [messages, isOpen]);
 
-    const handleSend = () => {
-        if (!inputText.trim()) return;
+    const handleSend = async () => {
+        if (!inputText.trim() || isTyping) return;
 
         const userMessage: Message = {
             id: Date.now().toString(),
@@ -54,22 +47,22 @@ export const ChatBot: React.FC = () => {
         setInputText('');
         setIsTyping(true);
 
-        // Simulate bot response
-        setTimeout(() => {
-            const lowerInput = userMessage.text.toLowerCase();
-            let botText = "I'm not sure about that. Could you please contact support for more details?";
+        try {
+            // Send to backend Ollama API
+            const response = await fetch(`${API_BASE_URL}/api/chat`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'ngrok-skip-browser-warning': 'true'
+                },
+                body: JSON.stringify({
+                    message: userMessage.text,
+                    history: messages.slice(-6) // Send last 6 messages for context
+                })
+            });
 
-            // Simple keyword matching
-            for (const [key, response] of Object.entries(FAQ_RESPONSES)) {
-                if (lowerInput.includes(key)) {
-                    botText = response;
-                    break;
-                }
-            }
-
-            if (lowerInput.includes('hello') || lowerInput.includes('hi')) {
-                botText = "Hello! Ready to game? 🎮";
-            }
+            const data = await response.json();
+            const botText = data.response || "I'm having trouble responding right now. Please try again!";
 
             const botMessage: Message = {
                 id: (Date.now() + 1).toString(),
@@ -79,8 +72,18 @@ export const ChatBot: React.FC = () => {
             };
 
             setMessages(prev => [...prev, botMessage]);
+        } catch (error) {
+            console.error('Chat error:', error);
+            const errorMessage: Message = {
+                id: (Date.now() + 1).toString(),
+                text: "I'm having connection issues. Please try again or contact support directly! 📞",
+                sender: 'bot',
+                timestamp: new Date()
+            };
+            setMessages(prev => [...prev, errorMessage]);
+        } finally {
             setIsTyping(false);
-        }, 1500);
+        }
     };
 
     const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -134,8 +137,8 @@ export const ChatBot: React.FC = () => {
                             >
                                 <div
                                     className={`max-w-[80%] p-3 rounded-2xl text-sm ${msg.sender === 'user'
-                                            ? 'bg-brand-500 text-white rounded-tr-none'
-                                            : 'bg-slate-700 text-slate-200 rounded-tl-none'
+                                        ? 'bg-brand-500 text-white rounded-tr-none'
+                                        : 'bg-slate-700 text-slate-200 rounded-tl-none'
                                         }`}
                                 >
                                     {msg.text}
